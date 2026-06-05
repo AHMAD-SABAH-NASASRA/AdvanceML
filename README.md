@@ -4,7 +4,7 @@ Final Project for Advance Machine Learning
 
 ## Team Members
 
-- Mohammad Ismaeel
+- Mohammad Ismail
 - Ahmad Nasasra
 
 ---
