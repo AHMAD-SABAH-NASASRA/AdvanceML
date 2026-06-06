@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+
+venv/
+myenv/
+kaggle-env/
+
+runs/
+data/raw/
+
+*.pt
+*.cache
+
+.ipynb_checkpoints/
+
+.DS_Store
