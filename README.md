@@ -48,6 +48,7 @@ python inference.py
 - `train.py`, `evaluate.py`, `inference.py` — Ultralytics entry points
 - `visualization/plot_samples.py` — converted-box inspection
 - `visdrone-yolov10-object-detection.ipynb` — experiment notebook
+- `visdrone-yolov10-object-detection.py` — historical notebook export retained as experiment evidence; it is not a maintained setup entry point and contains machine-specific paths
 - `finalReport.pdf` — methodology and reported metrics
 
 ## Known limitations
@@ -55,5 +56,5 @@ python inference.py
 - VisDrone data and trained weights are not included.
 - The validation split is used for model selection and reported evaluation; there is no independent labeled test evaluation.
 - The 960/1280 result artifacts are absent, so report values are not independently verifiable here.
-- Paths in some older notebook cells remain environment-specific; use the scripts and `VISDRONE_ROOT` for a portable workflow.
+- The notebook and its historical `.py` export retain environment-specific experiment paths. Use only the maintained scripts listed in Setup with `VISDRONE_ROOT` for the portable workflow.
 - There are no automated tests, CI, deployment files or production-serving implementation.

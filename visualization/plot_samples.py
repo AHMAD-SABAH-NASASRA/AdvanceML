@@ -1,10 +1,14 @@
 import os
 import cv2
 import matplotlib.pyplot as plt
+import sys
+from pathlib import Path
 
-train_image = "/home/mohammad/datasets/VisDrone2019-DET-train/VisDrone2019-DET-train/images"
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+from config import TRAIN_IMAGES, TRAIN_LABELS
 
-train_label = "/home/mohammad/datasets/VisDrone2019-DET-train/VisDrone2019-DET-train/labels"
+train_image = TRAIN_IMAGES
+train_label = TRAIN_LABELS
 
 class_names = [
     "person",
