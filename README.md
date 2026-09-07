@@ -1,290 +1,59 @@
-# Drone Person & Car Detection
+# Drone Person and Car Detection with YOLOv10
 
-Final Project for Advance Machine Learning
+This project fine-tunes Ultralytics **YOLOv10b** (the balanced variant) to detect pedestrians and cars in VisDrone2019 aerial imagery. It includes VisDrone-to-YOLO annotation conversion, dataset configuration, training, validation, inference and visualization scripts.
 
-## Team Members
+## Dataset pipeline
 
-- Mohammad Ismail
-- Ahmad Nasasra
+Only two VisDrone classes are retained: class 1 `pedestrian` becomes YOLO class 0 `person`, and class 4 `car` becomes YOLO class 1 `car`. Conversion normalizes bounding boxes by image dimensions and skips ignored/out-of-scope records.
 
----
+`VisDrone annotations → two-class YOLO labels → dataset YAML → YOLOv10b transfer learning → validation/inference`
 
-# Project Overview
+## Training configuration
 
-This project focuses on detecting and localizing **persons** and **cars** in aerial drone imagery using the **YOLOv10** object detection framework and the **VisDrone2019** dataset.
+The committed code loads `yolov10b.pt`, trains for up to 100 epochs with batch size 12, AdamW, early-stopping patience 25 and augmentation. The report describes experiments at 640, 960 and 1280 pixels.
 
-Drone-based object detection presents unique challenges due to:
+## Reported results
 
-- Small object sizes
-- Crowded scenes
-- Occlusions
-- Varying camera altitudes and viewpoints
-- Complex urban environments
+| Resolution | Precision | Recall | mAP@50 | mAP@50–95 |
+|---|---:|---:|---:|---:|
+| 640 | 0.689 | 0.521 | 0.544 | 0.310 |
+| 960 | 0.742 | 0.601 | 0.652 | 0.396 |
+| 1280 | **0.806** | **0.743** | **0.806** | **0.519** |
 
-The goal of this project is to build an accurate detector capable of identifying persons and vehicles in real-world drone images.
+For the reported 1280 run, class mAP@50 is 0.900 for cars and 0.713 for people. These values come from `finalReport.pdf`; the trained weights and full 960/1280 run directories are not committed, so those results cannot be reproduced from a fresh clone without retraining. A committed notebook output identifies YOLOv10b with 19,005,654 parameters and 91.6 GFLOPs.
 
----
+## Setup and run
 
-# Dataset
+Download the VisDrone2019 DET train, validation and test-dev archives, preserving their nested directory names.
 
-Dataset used:
+```bash
+python -m venv .venv
+source .venv/bin/activate
+# Install a CUDA-compatible PyTorch build first when using a GPU.
+pip install -r requirements.txt
+export VISDRONE_ROOT=/absolute/path/to/datasets
 
-**VisDrone2019 Object Detection Dataset**
-
-The dataset contains thousands of aerial images collected by drones in different environments and weather conditions.
-
-Original dataset classes were filtered and reduced to:
-
-| Class ID | Class |
-|-----------|---------|
-| 0 | Person |
-| 1 | Car |
-
----
-
-# Project Pipeline
-
-## 1. Data Preparation
-
-- Converted VisDrone annotations into YOLO format
-- Filtered target classes (Person and Car)
-- Generated YOLO dataset configuration files
-- Organized train, validation, and test splits
-
----
-
-## 2. Data Visualization
-
-Before training, samples and annotations were visualized to verify:
-
-- Bounding box correctness
-- Label conversion accuracy
-- Class distribution
-
----
-
-## 3. Data Augmentation
-
-The following augmentations were used during training:
-
-- Mosaic Augmentation
-- MixUp
-- Random Scaling
-- Translation
-- Horizontal Flipping
-
-These augmentations improved generalization and helped detect small objects.
-
----
-
-## 4. Model Selection
-
-Model:
-
-**YOLOv10x**
-
-Reasons:
-
-- Strong detection performance
-- Efficient training
-- Excellent small-object detection capabilities
-- Suitable for aerial imagery
-
----
-
-# Training Configuration
-
-| Parameter | Value |
-|------------|--------|
-| Model | YOLOv10x |
-| Image Size | 1280 |
-| Optimizer | AdamW |
-| Initial Learning Rate | 0.0008 |
-| Epochs | 100 |
-| Early Stopping | 25 |
-| Batch Size | Auto |
-| Mosaic | Enabled |
-| MixUp | Enabled |
-| Scale Augmentation | Enabled |
-| Translation | Enabled |
-
----
-
-# Experiments
-
-## Baseline Model
-
-Initial training configuration:
-
-- Smaller model
-- Lower image resolution
-
-Results:
-
-| Metric | Score |
-|----------|---------|
-| mAP50 | 0.544 |
-| mAP50-95 | 0.310 |
-
----
-
-## Final Optimized Model
-
-Improvements:
-
-- YOLOv10x
-- Image Size = 1280
-- Improved augmentation
-- Longer training schedule
-
-Results:
-
-| Metric | Score |
-|----------|---------|
-| Precision | 0.807 |
-| Recall | 0.742 |
-| mAP50 | 0.807 |
-| mAP50-95 | 0.521 |
-
----
-
-# Performance Improvement
-
-| Metric | Baseline | Final |
-|----------|-----------|--------|
-| mAP50 | 0.544 | 0.807 |
-| mAP50-95 | 0.310 | 0.521 |
-
-Significant improvement was achieved through model scaling, larger image resolution, and optimized training settings.
-
----
-
-# Training Analysis
-
-The model converged successfully during training.
-
-Observations:
-
-- Rapid improvement during early epochs
-- Stable convergence after approximately epoch 60
-- Best performance achieved around epoch 67
-- Additional epochs produced minimal improvement
-- Early stopping prevented unnecessary training
-
----
-
-# Results
-
-Final validation performance:
-
-| Metric | Value |
-|----------|---------|
-| Precision | 0.807 |
-| Recall | 0.742 |
-| mAP50 | 0.807 |
-| mAP50-95 | 0.521 |
-
-The detector successfully identified:
-
-- Pedestrians
-- Cars
-
-across challenging aerial scenes.
-
----
-
-# Example Predictions
-
-Examples of model predictions are available in:
-
-```text
-images/
+python dataset/convert_annotations.py
+python dataset/yaml_creator.py
+python dataset/class_counter.py
+python train.py
+python evaluate.py
+python inference.py
 ```
 
-Including:
+## Structure
 
-- Detection examples
-- Precision-Recall curves
-- Confusion matrices
-- Training curves
+- `config.py` — paths and run identifiers
+- `dataset/` — annotation conversion, YAML creation and class counts
+- `train.py`, `evaluate.py`, `inference.py` — Ultralytics entry points
+- `visualization/plot_samples.py` — converted-box inspection
+- `visdrone-yolov10-object-detection.ipynb` — experiment notebook
+- `finalReport.pdf` — methodology and reported metrics
 
----
+## Known limitations
 
-# Project Structure
-
-```text
-AdvanceML/
-│
-├── train.py
-├── evaluate.py
-├── inference.py
-├── visualization.py
-├── dataset_utils.py
-├── config.py
-│
-├── dataset/
-│
-├── images/
-│   ├── results.png
-│   ├── confusion_matrix_normalized.png
-│   ├── PR_curve.png
-│   ├── F1_curve.png
-│   ├── prediction1.jpg
-│   ├── prediction2.jpg
-│   └── prediction3.jpg
-│
-├── visdrone-yolov10-object-detection.py
-├── visdrone-yolov10-object-detection.ipynb
-│
-└── README.md
-```
-
----
-
-# Technologies Used
-
-- Python
-- PyTorch
-- Ultralytics YOLOv10
-- OpenCV
-- NumPy
-- Matplotlib
-
----
-
-# Challenges
-
-The main challenges encountered were:
-
-- Detecting very small pedestrians
-- Dense urban scenes
-- Class imbalance
-- Computational cost of high-resolution training
-
----
-
-# Future Work
-
-Potential improvements include:
-
-- Multi-class detection
-- Model quantization
-- Knowledge distillation
-- Real-time deployment on edge devices
-- Tracking and trajectory analysis
-
----
-
-# Course Information
-
-**Course:** Advance Machine Learning
-
-**Year:** 2026
-
----
-
-# Acknowledgment
-
-Dataset provided by the VisDrone Challenge.
-
-YOLO implementation provided by Ultralytics.
+- VisDrone data and trained weights are not included.
+- The validation split is used for model selection and reported evaluation; there is no independent labeled test evaluation.
+- The 960/1280 result artifacts are absent, so report values are not independently verifiable here.
+- Paths in some older notebook cells remain environment-specific; use the scripts and `VISDRONE_ROOT` for a portable workflow.
+- There are no automated tests, CI, deployment files or production-serving implementation.

@@ -1,5 +1,5 @@
 from ultralytics import YOLO
-from config import YAML_PATH, MODEL_NAME, PROJECT_NAME, RUN_NAME
+from config import YAML_PATH, MODEL_NAME, PROJECT_NAME, RUN_NAME, IMAGE_SIZE
 
 model = YOLO(MODEL_NAME)
 
@@ -12,10 +12,10 @@ history = model.train(
     lrf=0.01,
 
     project=PROJECT_NAME,
-    name="visdrone_person_car_1280",
+    name=f"{RUN_NAME}_{IMAGE_SIZE}",
 
     patience=25,
-    imgsz=1280,
+    imgsz=IMAGE_SIZE,
 
     mosaic=1.0,
     close_mosaic=10,

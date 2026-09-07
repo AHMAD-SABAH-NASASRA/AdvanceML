@@ -1,5 +1,10 @@
 import os
 from collections import Counter
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+from config import TRAIN_LABELS
 
 CLASS_NAMES = {
     0: "person",
@@ -33,9 +38,7 @@ def count_classes(label_dir):
 
 if __name__ == "__main__":
 
-    train_label = "/home/mohammad/datasets/VisDrone2019-DET-train/VisDrone2019-DET-train/labels"
-
-    counts = count_classes(train_label)
+    counts = count_classes(TRAIN_LABELS)
 
     for k, v in counts.items():
         print(CLASS_NAMES[k], v)

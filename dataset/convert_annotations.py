@@ -1,5 +1,9 @@
 from pathlib import Path
 from PIL import Image
+import sys
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+from config import DATASET_ROOT
 
 CLASS_MAP = {
     1: 0,
@@ -8,7 +12,7 @@ CLASS_MAP = {
 
 def convert_split(split):
 
-    root = Path(f"/home/mohammad/datasets/{split}/{split}")
+    root = DATASET_ROOT / split / split
 
     ann_dir = root / "annotations"
     img_dir = root / "images"

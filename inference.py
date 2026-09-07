@@ -2,12 +2,14 @@ from ultralytics import YOLO
 import matplotlib.pyplot as plt
 import cv2
 import os
+from config import TEST_IMAGES, WEIGHTS_PATH, IMAGE_SIZE
 
-best_model = "/home/mohammad/AdvanceML/runs/detect/my_project/visdrone_person_car_1280/weights/best.pt"
+if not WEIGHTS_PATH.exists():
+    raise FileNotFoundError(f"Model weights not found: {WEIGHTS_PATH}. Set YOLO_WEIGHTS or train first.")
 
-model = YOLO(best_model)
+model = YOLO(str(WEIGHTS_PATH))
 
-test_images_path = "/home/mohammad/datasets/VisDrone2019-DET-test-dev/VisDrone2019-DET-test-dev/images"
+test_images_path = str(TEST_IMAGES)
 
 all_images = sorted(os.listdir(test_images_path))[:15]
 
@@ -17,7 +19,7 @@ for img_name in all_images:
 
     results = model.predict(
         source=img_path,
-        imgsz=1280,
+        imgsz=IMAGE_SIZE,
         conf=0.15,
         save=True
     )

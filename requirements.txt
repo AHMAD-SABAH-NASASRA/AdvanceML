@@ -1,0 +1,6 @@
+# Install the appropriate PyTorch build for your platform first.
+ultralytics==8.4.53
+opencv-python>=4.9,<5
+matplotlib>=3.8,<4
+PyYAML>=6,<7
+Pillow>=10,<12

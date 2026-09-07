@@ -1,12 +1,14 @@
 from ultralytics import YOLO
+from config import YAML_PATH, WEIGHTS_PATH, IMAGE_SIZE
 
-best_model = "/home/mohammad/AdvanceML/runs/detect/my_project/visdrone_person_car_1280/weights/best.pt"
+if not WEIGHTS_PATH.exists():
+    raise FileNotFoundError(f"Model weights not found: {WEIGHTS_PATH}. Set YOLO_WEIGHTS or train first.")
 
-model = YOLO(best_model)
+model = YOLO(str(WEIGHTS_PATH))
 
 metrics = model.val(
-    data="/home/mohammad/datasets/visdrone.yaml",
-    imgsz=1280,
+    data=str(YAML_PATH),
+    imgsz=IMAGE_SIZE,
     split="val"
 )
 
